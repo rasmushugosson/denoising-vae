@@ -1,0 +1,28 @@
+version: '1'
+name: denoising-vae
+services:
+  denoising-vae:
+    container_name: denoising-vae-container
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    tty: true
+    volumes:
+      - ./data/:/app/data
+      - ./notebooks/:/app/notebooks
+      - ./res/:/app/res
+      - ./denoising_vae/:/app/denoising_vae
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+        - "$JUPYTER_PORT:$JUPYTER_PORT"
+        - "$TENSORBOARD_PORT:$TENSORBOARD_PORT"
+    env_file:
+     - ./.env
+    entrypoint: jupyter lab --ip 0.0.0.0 --port=$JUPYTER_PORT --no-browser --allow-root
+    
